@@ -32,11 +32,16 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        hash_value = 5381
-    
+        # Brady's Version
+        # hash_value = 5381
+        # for char in key:
+        #     hash_value = ((hash_value << 5) + hash_value) + char
+        # return hash_value
+
+        hash = 5381
         for char in key:
-            hash_value = ((hash_value << 5) + hash_value) + char
-        return hash_value
+            hash = ((hash << 5) + hash) + ord(char)
+        return hash & 0xFFFFFFFF
 
 
     def _hash_mod(self, key):
@@ -55,11 +60,24 @@ class HashTable:
 
         Fill this in.
         '''
+        # index = self._hash_mod(key)
+        # if self.storage[index] != None:
+        #     print('Warning: Hash Collision has occurred.')
+        # else:
+        #     self.storage[index] = value
+
+        # Second Pass Attempt
         index = self._hash_mod(key)
-        if self.storage[index] != None:
-            print('Warning: Hash Collision has occurred.')
+        if self.storage[index] is not None:
+            current = self.storage[index]
+            while current.next is not None and current.key is not key:
+                current = current.next
+            if current.key == key:
+                current.value = value
+            else: 
+                current.next = LinkedPair(key, value)
         else:
-            self.storage[index] = value
+            self.storage[index] = LinkedPair(key, value)
 
 
     def remove(self, key):
@@ -85,11 +103,26 @@ class HashTable:
 
         Fill this in.
         '''
+        # index = self._hash_mod(key)
+        # if self.storage[index] == None:
+        #     return None
+        # else:
+        #     return self.storage[index]
+
+        # Second Pass Attempt
         index = self._hash_mod(key)
-        if self.storage[index] == None:
+        if self.storage[index] is None:
             return None
         else:
-            return self.storage[index]
+            current = self.storage[index]
+            if current.key == key:
+                return current.value
+            while current is not None:
+                if current.key == key:
+                    return current.value
+                else:
+                    current = current.next
+            return None
 
 
     def resize(self):
@@ -99,13 +132,24 @@ class HashTable:
 
         Fill this in.
         '''
+        # self.capacity *= 2
+        # new_storage = [None] * self.capacity
+        # for pair in self.storage:
+        #     if pair is not None:
+        #         rehashed_index = self._hash_mod(pair.key)
+        #         new_storage[rehashed_index] = pair
+        # self.storage = new_storage
+
+        # Second Pass Attempt
+        initial_storage = self.storage
         self.capacity *= 2
-        new_storage = [None] * self.capacity
-        for pair in self.storage:
-            if pair is not None:
-                rehashed_index = self._hash_mod(pair.key)
-                new_storage[rehashed_index] = pair
-        self.storage = new_storage
+        self.storage = [None] * self.capacity
+        pair = None
+        for i in initial_storage:
+            pair = i
+            while pair != None:
+                self.insert(pair.key, pair.value)
+                pair = pair.next
 
 
 if __name__ == "__main__":
