@@ -32,7 +32,11 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash_value = 5381
+    
+        for char in key:
+            hash_value = ((hash_value << 5) + hash_value) + char
+        return hash_value
 
 
     def _hash_mod(self, key):
@@ -51,8 +55,11 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
+        index = self._hash_mod(key)
+        if self.storage[index] != None:
+            print('Warning: Hash Collision has occurred.')
+        else:
+            self.storage[index] = value
 
 
     def remove(self, key):
@@ -63,7 +70,11 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash_mod(key)
+        if self.storage[index] == None:
+            print('Warning: Key does not exist.')
+        else:
+            self.storage[index] = None
 
 
     def retrieve(self, key):
@@ -74,7 +85,11 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash_mod(key)
+        if self.storage[index] == None:
+            return None
+        else:
+            return self.storage[index]
 
 
     def resize(self):
@@ -84,8 +99,13 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
+        self.capacity *= 2
+        new_storage = [None] * self.capacity
+        for pair in self.storage:
+            if pair is not None:
+                rehashed_index = self._hash_mod(pair.key)
+                new_storage[rehashed_index] = pair
+        self.storage = new_storage
 
 
 if __name__ == "__main__":
